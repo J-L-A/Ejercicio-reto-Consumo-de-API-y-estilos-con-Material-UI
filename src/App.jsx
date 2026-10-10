@@ -1,37 +1,45 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
+import CssBaseline from '@mui/material/CssBaseline';
+import Box from '@mui/material/Box';
+import Nav from './components/Nav';
+import Home from './pages/Home';
+import Posts from './pages/Posts';
+
+// Configuración de Tema: Royal Blue + Acentos Dorados
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#4169E1', // Royal Blue
+      contrastText: '#ffffff',
+    },
+    secondary: {
+      main: '#FFD700', // Dorado / Oro
+      contrastText: '#1a1a1a',
+    },
+    background: {
+      default: '#F4F6FB',
+    },
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+  },
+});
 
 function App() {
-  const [numero1, setNumero1] = useState(0)
-  const [numero2, setNumero2] = useState(0)
-  const [resultadoSuma, setResultadoSuma] = useState(0)
-
-  function sumar() {
-    setResultadoSuma(Number(numero1) + Number(numero2))
-  }
-
   return (
-
-  /*  <>
-      <input type="number" onChange={(e) => setNumero2(e.target.value)} />
-      <p>Número: {numero2}</p>
-      <input type="number" onChange={(e) => setNumero1(e.target.value)} />
-      <p>Número: {numero1}</p>
-      <button onClick={() => setNumero3(parseInt(numero1) + parseInt(numero2))}>Sumar</button>
-      <p>Resultado: {numero3}</p>
-
-    </> */
-
-    <>
-      <input type="number" onChange={(e) => setNumero1(e.target.value)} />
-      <input type="number" onChange={(e) => setNumero2(e.target.value)} />
-      <button onClick={sumar}>Sumar</button>
-      <p>Resultado: {resultadoSuma}</p>
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+        <Nav />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/posts" element={<Posts />} />
+        </Routes>
+      </Box>
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
