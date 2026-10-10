@@ -1,65 +1,94 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ObtenerPosts from '../services/postsService';
 import Tarjeta from '../components/Tarjeta';
 import TextField from '@mui/material/TextField';
 import Pagination from '@mui/material/Pagination';
 import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
-import './Posts.css'; // 🎨 Importación de estilos separados para Posts
+import './Posts.css';
+
+const LIMITE = 10; // posts por página (_limit)
+
+const crearClave = (pagina, busqueda) => `${pagina}|${busqueda}`;
 
 function Posts() {
-  // 1. Estados
-  const [posts, setPosts] = useState([]);
-  const [cargando, setCargando] = useState(false);
-  const [error, setError] = useState(null);
-  const [buscar, setBuscar] = useState('');
+  const [busqueda, setBusqueda] = useState('');
   const [pagina, setPagina] = useState(1);
-  const limite = 10; // 10 posts por página (10 páginas en total)
+  // Guarda la respuesta junto con la petición (clave) a la que pertenece
+  const [resultado, setResultado] = useState({ clave: null, posts: [], total: 0, error: false });
 
-  // 2. Función que consume el servicio
-  const mostrarDatosPosts = async () => {
-    try {
-      setCargando(true);
-      const datosJson = await ObtenerPosts(pagina, limite);
-      setPosts(datosJson);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setCargando(false);
-    }
+  // Mientras la respuesta guardada no corresponda a la página/búsqueda actual, se está cargando
+  const cargando = resultado.clave !== crearClave(pagina, busqueda);
+
+  useEffect(() => {
+    let cancelado = false; // evita mostrar respuestas viejas si el usuario sigue escribiendo
+
+    ObtenerPosts(pagina, LIMITE, busqueda).then((respuesta) => {
+      if (cancelado) return;
+      setResultado({
+        clave: crearClave(pagina, busqueda),
+        posts: respuesta ? respuesta.datos : [],
+        total: respuesta ? respuesta.total : 0,
+        error: respuesta === null,
+      });
+    });
+
+    return () => {
+      cancelado = true;
+    };
+  }, [pagina, busqueda]);
+
+  const totalPaginas = Math.max(1, Math.ceil(resultado.total / LIMITE));
+
+  // Al buscar se vuelve a la página 1
+  const cambiarBusqueda = (evento) => {
+    setBusqueda(evento.target.value);
+    setPagina(1);
   };
 
-  // 3. Se ejecuta al iniciar y cada vez que cambia de página
-  useEffect(() => {
-    mostrarDatosPosts();
-  }, [pagina]);
+  const cambiarPagina = (evento, valor) => {
+    setPagina(valor);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
-  // 4. Filtrado del buscador en tiempo real
-  const postsFiltrados = posts.filter((post) =>
-    post.title.toLowerCase().includes(buscar.toLowerCase())
-  );
+  const mostrarContenido = () => {
+    if (cargando) {
+      return (
+        <div className="posts-estado">
+          <CircularProgress />
+        </div>
+      );
+    }
 
-  // 5. Retornos tempranos para carga y error (como en ListarUsuarios)
-  if (cargando) {
+    if (resultado.error) {
+      return (
+        <Alert severity="error" className="posts-estado">
+          No se pudieron cargar los posts. Revisa tu conexión e inténtalo de nuevo.
+        </Alert>
+      );
+    }
+
+    if (resultado.posts.length === 0) {
+      return (
+        <Typography color="text.secondary" className="posts-estado">
+          No se encontraron posts con el título “{busqueda}”.
+        </Typography>
+      );
+    }
+
     return (
-      <div className="posts-cargando">
-        <CircularProgress />
+      <div className="posts-grid">
+        {resultado.posts.map((post) => (
+          <Tarjeta key={post.id} id={post.id} titulo={post.title} cuerpo={post.body} />
+        ))}
       </div>
     );
-  }
+  };
 
-  if (error) {
-    return (
-      <Typography color="error" align="center" sx={{ my: 4 }}>
-        Error: {error}
-      </Typography>
-    );
-  }
-
-  // 6. Renderizado principal con clases CSS separadas
   return (
     <div className="posts-contenedor">
-      <Typography variant="h4" className="posts-titulo">
+      <Typography variant="h4" component="h1" className="posts-titulo" color="primary.dark">
         Listado de Posts
       </Typography>
 
@@ -68,34 +97,26 @@ function Posts() {
         <TextField
           label="Buscar por título"
           variant="outlined"
-          value={buscar}
-          onChange={(e) => setBuscar(e.target.value)}
-          sx={{ width: { xs: '100%', sm: 380 } }}
+          value={busqueda}
+          onChange={cambiarBusqueda}
+          sx={{ width: '100%', maxWidth: 420 }}
         />
       </div>
 
-      {/* Lista de Tarjetas Reutilizadas */}
-      <div className="posts-grid">
-        {postsFiltrados.map((post) => (
-          <Tarjeta
-            key={post.id}
-            id={post.id}
-            titulo={post.title}
-            cuerpo={post.body}
+      {mostrarContenido()}
+
+      {/* Paginación con Material UI: usa _page y _limit en cada cambio de página */}
+      {!resultado.error && resultado.total > 0 && (
+        <div className="posts-paginacion">
+          <Pagination
+            count={totalPaginas}
+            page={pagina}
+            onChange={cambiarPagina}
+            color="primary"
+            size="large"
           />
-        ))}
-      </div>
-
-      {/* Paginación con Material UI */}
-      <div className="posts-paginacion">
-        <Pagination
-          count={10}
-          page={pagina}
-          onChange={(event, valor) => setPagina(valor)}
-          color="primary"
-          size="large"
-        />
-      </div>
+        </div>
+      )}
     </div>
   );
 }

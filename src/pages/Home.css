@@ -12,17 +12,16 @@
   text-align: center;
   background-color: #ffffff;
   border-radius: 16px;
-  border-top: 6px solid #4169E1; /* Royal Blue */
+  border-top: 6px solid #4169E1; 
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
-.home-titulo {
+.home-tarjeta .home-titulo {
   font-weight: 800;
-  color: #1a237e;
   margin-bottom: 16px;
 }
 
-.home-descripcion {
+.home-tarjeta .home-descripcion {
   color: #666;
   margin-bottom: 32px;
   font-size: 1.1rem;

@@ -4,30 +4,34 @@
   max-width: 1200px;
   margin: 0 auto;
 }
-.posts-titulo {
-  font-weight: bold;
-  color: #1a237e;
+
+.posts-contenedor .posts-titulo {
+  font-weight: 700;
   margin-bottom: 24px;
 }
-.posts-buscador {
+
+.posts-contenedor .posts-buscador {
   margin-bottom: 32px;
   display: flex;
   justify-content: center;
 }
-.posts-grid {
+
+.posts-contenedor .posts-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 24px;
   justify-content: center;
   margin-bottom: 40px;
 }
-.posts-paginacion {
+
+.posts-contenedor .posts-paginacion {
   display: flex;
   justify-content: center;
   margin-top: 24px;
 }
-.posts-cargando {
+
+.posts-contenedor .posts-estado {
   display: flex;
   justify-content: center;
-  margin: 64px 0;
+  margin: 48px 0;
 }

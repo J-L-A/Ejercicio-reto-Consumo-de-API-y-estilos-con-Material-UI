@@ -1,136 +1,122 @@
-import React from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { styled, alpha } from '@mui/material/styles';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import Toolbar from '@mui/material/Toolbar';
+import Divider from '@mui/material/Divider';
+import Drawer from '@mui/material/Drawer';
 import IconButton from '@mui/material/IconButton';
-import Typography from '@mui/material/Typography';
-import InputBase from '@mui/material/InputBase';
-import Button from '@mui/material/Button';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemText from '@mui/material/ListItemText';
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
 
-const Search = styled('div')(({ theme }) => ({
-  position: 'relative',
-  borderRadius: theme.shape.borderRadius,
-  backgroundColor: alpha(theme.palette.common.white, 0.15),
-  '&:hover': {
-    backgroundColor: alpha(theme.palette.common.white, 0.25),
-  },
-  marginLeft: 0,
-  width: '100%',
-  [theme.breakpoints.up('sm')]: {
-    marginLeft: theme.spacing(1),
-    width: 'auto',
-  },
-}));
+const drawerWidth = 240;
+// Cada opción del menú apunta a una ruta definida en <Routes> (App.jsx)
+const navItems = [
+  { texto: 'Inicio', ruta: '/' },
+  { texto: 'Posts', ruta: '/posts' },
+];
 
-const SearchIconWrapper = styled('div')(({ theme }) => ({
-  padding: theme.spacing(0, 2),
-  height: '100%',
-  position: 'absolute',
-  pointerEvents: 'none',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  color: '#FFD700', // Acento dorado en la lupa
-}));
+function Nav() {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const { pathname } = useLocation();
 
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-  color: 'inherit',
-  width: '100%',
-  '& .MuiInputBase-input': {
-    padding: theme.spacing(1, 1, 1, 0),
-    paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create('width'),
-    [theme.breakpoints.up('sm')]: {
-      width: '14ch',
-      '&:focus': {
-        width: '22ch',
-      },
-    },
-  },
-}));
+  const handleDrawerToggle = () => {
+    setMobileOpen((prevState) => !prevState);
+  };
 
-export default function Nav({ busquedaNav, onBusquedaNav }) {
-  const location = useLocation();
+  // Menú lateral que se muestra en pantallas pequeñas
+  const drawer = (
+    <Box onClick={handleDrawerToggle} sx={{ textAlign: 'center' }}>
+      <Typography variant="h6" sx={{ my: 2, fontWeight: 700, color: 'primary.main' }}>
+        PORTAL POSTS
+      </Typography>
+      <Divider />
+      <List>
+        {navItems.map(({ texto, ruta }) => (
+          <ListItem key={ruta} disablePadding>
+            <ListItemButton
+              component={Link}
+              to={ruta}
+              selected={pathname === ruta}
+              sx={{ textAlign: 'center' }}
+            >
+              <ListItemText primary={texto} />
+            </ListItemButton>
+          </ListItem>
+        ))}
+      </List>
+    </Box>
+  );
 
   return (
-    <Box sx={{ flexGrow: 1, mb: 4 }}>
-      <AppBar position="static" sx={{ bgcolor: '#4169E1' }}>
+    <>
+      <AppBar component="nav">
         <Toolbar>
           <IconButton
-            size="large"
-            edge="start"
             color="inherit"
             aria-label="open drawer"
-            sx={{ mr: 2, color: '#FFD700' }}
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
-          
           <Typography
             variant="h6"
-            noWrap
             component={Link}
             to="/"
             sx={{
               flexGrow: 1,
               display: { xs: 'none', sm: 'block' },
+              color: 'secondary.main', // acento dorado
+              fontWeight: 700,
               textDecoration: 'none',
-              color: '#FFD700', // Color personalizado dorado para el título
-              fontWeight: 800,
-              letterSpacing: 0.8,
             }}
           >
             PORTAL POSTS
           </Typography>
-
-          {/* Enlaces de Navegación del Menú */}
-          <Box sx={{ display: 'flex', gap: 1, mr: 2 }}>
-            <Button
-              component={Link}
-              to="/"
-              sx={{
-                color: '#fff',
-                fontWeight: 600,
-                borderBottom: location.pathname === '/' ? '2px solid #FFD700' : 'none',
-                borderRadius: 0,
-                '&:hover': { color: '#FFD700' },
-              }}
-            >
-              Inicio
-            </Button>
-            <Button
-              component={Link}
-              to="/posts"
-              sx={{
-                color: '#fff',
-                fontWeight: 600,
-                borderBottom: location.pathname === '/posts' ? '2px solid #FFD700' : 'none',
-                borderRadius: 0,
-                '&:hover': { color: '#FFD700' },
-              }}
-            >
-              Posts
-            </Button>
+          <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+            {navItems.map(({ texto, ruta }) => (
+              <Button
+                key={ruta}
+                component={Link}
+                to={ruta}
+                sx={{
+                  color: '#fff',
+                  borderRadius: 0,
+                  borderBottom: '2px solid',
+                  borderColor: pathname === ruta ? 'secondary.main' : 'transparent',
+                }}
+              >
+                {texto}
+              </Button>
+            ))}
           </Box>
-
-          {/* Buscador integrado de la plantilla */}
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Buscar posts…"
-              inputProps={{ 'aria-label': 'search' }}
-              value={busquedaNav || ''}
-              onChange={(e) => onBusquedaNav && onBusquedaNav(e.target.value)}
-            />
-          </Search>
         </Toolbar>
       </AppBar>
-    </Box>
+      <nav>
+        <Drawer
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleDrawerToggle}
+          ModalProps={{
+            keepMounted: true, // Mejor rendimiento al abrir en móvil.
+          }}
+          sx={{
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+          }}
+        >
+          {drawer}
+        </Drawer>
+      </nav>
+    </>
   );
 }
+
+export default Nav;
