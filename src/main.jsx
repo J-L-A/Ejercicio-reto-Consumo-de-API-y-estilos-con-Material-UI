@@ -11,3 +11,5 @@ createRoot(document.getElementById('root')).render(
     </BrowserRouter>
   </StrictMode>,
 )
+
+// Este archivo es el punto de entrada de la aplicación React. Renderiza el componente <App /> dentro del contenedor con id 'root' en index.html, y envuelve la aplicación en <BrowserRouter> para habilitar el enrutamiento con react-router-dom.
